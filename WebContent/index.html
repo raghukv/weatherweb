@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto">
+<!-- <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> -->
+<!-- <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3.exp&signed_in=true&libraries=weather"></script> -->
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&v=3.exp&signed_in=true&libraries=places"></script>
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> 
+<script src="js/weather-maps.js"></script>
+<link rel="stylesheet" type="text/css" href="jquery.datetimepicker.css">
+<script src="js/jquery.js"></script>
+<script src="js/jquery.datetimepicker.js"></script>
+</head>
+<body onload="initialize()">
+<input id="datetimepicker" placeholder = "Depart at" class="timeDate" type="text"  readonly>
+<label class = "errorMsg" id = "errorMsg"></label>
+<input  class = "controlsOrigin" placeholder = "Origin" type="text" id = "routeStart" value="">
+<input class = "controlsDestination" placeholder = "Destination" type="text" id = "routeEnd" value="">
+<input class = "button" id = "button" type="button" value="Search">
+<input type="checkbox" class = "trafficCheckBox" id="traffic">
+<label class = "trafficLabel">Live Traffic</label>
+<label class = "label">WeMaps</label>
+<div id = "directionsPanel" class = "dirPanel"></div>
+<div id = "map_canvas"></div>
+</body>
+<style>
+html{
+font-family: 'Roboto', serif;
+background-color: rgba(216, 216, 216, .99);
+float:left;
+height:100%;
+width:80%;
+margin:0px;
+padding:0px;
+}
+body{
+font-family: 'Roboto', serif;
+background-color: rgba(216, 216, 216, .01);
+float:left;
+height:100%;
+width:80%;
+margin:0px;
+padding:0px;
+}
+#map_canvas{
+font-family: 'Roboto', serif;
+background-color: rgba(216, 216, 216, .8);
+float:left;
+height:100%;
+width:80%;
+margin:0px;
+padding:0px;
+border-color:black;
+border-radius:2px 0 0 2px;
+box-shadow: 0 2px 6px black;
+}
+.errorMsg{
+font-family: 'Roboto', serif;
+color:#DF0101;
+font-weight:bold;
+font-size:14px;
+position:absolute;
+margin-top:196px;
+margin-left:40px;
+padding: 0 11px 0 13px;
+}
+.label{
+font-family: 'Roboto', serif;
+font-size:58px;
+color:black;
+opacity:.1;
+position:absolute;
+margin-top:309px;
+margin-left:60px;
+padding: 0 11px 0 13px;
+}
+.trafficLabel{
+font-family: 'Roboto', serif;
+position:absolute;
+margin-top:166px;
+margin-left:60px;
+padding: 0 11px 0 13px;
+}
+.button{
+    font-family: 'Roboto', serif;
+    margin-top:160px;
+    margin-left:50px;
+    padding: 0 11px 0 13px;
+    display: inline-block;
+	background-color: #f5f5f5;
+	background-image: -webkit-linear-gradient(top,#f5f5f5,#f1f1f1);
+	background-image: -moz-linear-gradient(top,#f5f5f5,#f1f1f1);
+	background-image: -ms-linear-gradient(top,#f5f5f5,#f1f1f1);
+	background-image: -o-linear-gradient(top,#f5f5f5,#f1f1f1);
+	background-image: linear-gradient(top,#f5f5f5,#f1f1f1);
+	color: #444;
+	
+	border: 1px solid #dcdcdc;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,.1);
+	cursor: default;
+	font-size: 13px;
+	text-align: center;
+	height: 30px;
+	line-height: 27px;
+	min-width: 54px;
+	padding: 0 8px;
+	text-decoration: none;
+}
+.button:hover {
+	background-color: #F8F8F8;
+	background-image: -webkit-linear-gradient(top,#f8f8f8,#f1f1f1);
+	background-image: -moz-linear-gradient(top,#f8f8f8,#f1f1f1);
+	background-image: -ms-linear-gradient(top,#f8f8f8,#f1f1f1);
+	background-image: -o-linear-gradient(top,#f8f8f8,#f1f1f1);
+	background-image: linear-gradient(top,#f8f8f8,#f1f1f1);
+	cursor: pointer; cursor: hand;
+	border: 1px solid #C6C6C6;
+	color: #333;
+	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,.1);
+	-moz-box-shadow: 0px 1px 1px rgba(0,0,0,.1);
+	box-shadow: 0px 1px 1px rgba(0,0,0,.1);
+}
+.button:focus {outline:0;}
+.trafficCheckBox{
+position:absolute;
+margin-top:170px;
+margin-left:50px;
+}
+.trafficCheckBox:hover{cursor: pointer; cursor: hand;}
+.dirPanel{
+font-family: 'Roboto', serif;
+position:absolute;
+margin-top: 30px;
+margin-left: 52%;
+height:400px;
+overflow:auto;
+border-color:black;
+border-radius:2px 0 0 2px;
+box-shadow: 0 2px 6px black;
+}
+.timeDate{
+font-family: 'Roboto', serif;
+position:absolute;
+margin-top:110px;
+margin-left:50px;
+padding:0px;
+border:1px solid transparent;
+border-color:black;
+border-radius:2px 0 0 2px;
+box-sizing:border-box;
+-moz-box-sizing:border-box;
+height:32px;
+width:308px;
+outline:none;
+box-shadow:0 2px 6px black;
+text-indent:10px;
+}
+.timeDate:hover{cursor: pointer; cursor: hand;}
+.controlsOrigin{
+font-family: 'Roboto', serif;
+position:absolute;
+margin-top:10px;
+margin-left:50px;
+padding:0px;
+border:1px solid transparent;
+border-color:black;
+border-radius:2px 0 0 2px;
+box-sizing:border-box;
+-moz-box-sizing:border-box;
+height:32px;
+width:308px;
+outline:none;
+box-shadow:0 2px 6px black;
+text-indent:10px;
+}
+.controlsDestination{
+font-family: 'Roboto', serif;
+position:absolute;
+margin-top:60px;
+margin-left:50px;
+padding:0px;
+border:1px solid transparent;
+border-color:black;
+border-radius:2px 0 0 2px;
+box-sizing:border-box;
+-moz-box-sizing:border-box;
+height:32px;
+width:308px;
+outline:none;
+box-shadow:0 2px 6px black;
+text-indent:10px;
+}
+</style>
+</html>
